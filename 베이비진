@@ -1,0 +1,42 @@
+# 베이비진인지 확인하는 로직
+def isbabygin(counts, c):  # counts: 플레이어의 카드 카운트 리스트 / c: 방금 입력 받은 카드 번호
+    # triplet인지
+    if counts[c] >= 3:  # 방금 입력받은 카드의 장수가 3장 이상이라면
+        return True  # triplet
+    # run인지
+    # 1. c-2, c-1, c(idx: 2 <= c - 앞으로 2장 빠짐. 즉, 최소 2장 이상 존재하여야 함)의 순서대로 연속된 카드가 존재하는지 확인
+    if (2 <= c) and counts[c-2] and counts[c-1] and counts[c]:
+        return True
+    # 2. c-1, c, c+1 (idx: 1 <= c <= 8 - 앞으로 1장 빠짐 == 최소 한 장 필요, 뒤로 1장 빠짐 == 최대 8장 필요) 의 순서대로 연속된 카드가 존재하는지
+    if (1 <= c <=8) and counts[c-1] and counts[c] and counts[c+1]:
+        return True
+    # 3. c, c+1, c+2 (idx: c <= 7 - 뒤로 2장 빠짐)의 순서대로 연속된 카드가 존재하는지
+    if (c <= 7) and counts[c] and counts[c+1] and counts[c+2]:
+        return True
+    else:  #
+        return False
+ 
+t = int(input())
+for tc in range(1, t+1):
+    cards = list(map(int, input().split()))  # 입력받은 카드 리스트
+ 
+    p1_counts = [0] * 10  # p1의 0~9까지 카드수를 저장할 리스트
+    p2_counts = [0] * 10  # p2의 0~9까지 카드수를 저장할 리스트
+ 
+    result = 0  # 승리한 사람의 정수를 담는 변수 + 무승부라면
+ 
+    for idx, card in enumerate(cards):
+        # cards 리스트의 idx 와 card 숫자를 순회할 거임
+        if idx % 2 == 0:  # 짝수라면 p1차례
+            p1_counts[card] += 1  # p1의 카드 리스트에 해당하는 카드 장수 카운트 1
+            if isbabygin(p1_counts, card):  # p1의 카드 리스트의 card값이
+                # run이나 triplet이라면
+                result = 1
+                break
+        else:  # 홀수라면 p2차례
+            p2_counts[card] += 1  # p2의 카드 리스트에 해당하는 카드 장수 카운트 1
+            if isbabygin(p2_counts, card):  # p2의 카드 리스트의 card값이
+                # run이나 triplet이라면
+                result = 2
+                break
+    print(f'#{tc} {result}')
