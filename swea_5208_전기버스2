@@ -1,0 +1,29 @@
+def dfs(n, cnt, sm):  # n: n번째 정류장 / cnt: 충전 횟수 / sm: 배터리 잔량
+    global ans
+    # 가지치기 (항상 먹히는 가지치기~~)
+    if ans <= cnt:
+        return
+
+    # 기저조건
+    if n == N:
+        ans = min(ans, cnt)
+        return
+
+    # 가지치기를 고려하는 경우: 유망한 답이 먼저 나오는 방향으로 호출!
+    # 교체하는 경우
+    # n+1: 정류장 하나 이동, cnt+1: 충전횟수 1회 추가, lst[n]-1: lst[n]번째의 정류장 배터리에서 -1
+    dfs(n + 1, cnt + 1, lst[n] - 1)
+
+    # 교체하지 않는 경우 ( 배터리 잔량이 0보다 클 때만 가능 )
+    if sm > 0:
+        # n+1: 정류장 하나 이동, cnt: 그대로 유지, sm-1: 배터리 잔량 -1
+        dfs(n + 1, cnt, sm - 1)
+
+t = int(input())
+for tc in range(1, t + 1):
+    lst = list(map(int, input().split()))
+    N = lst[0]
+    ans = N  # 모든 정류장에서 교체할 경우에는 n번
+
+    dfs(2, 0, lst[1] - 1)  # 1번 정류장에서는 교체회수 x, 2번부터 진행할거임
+    print(f'#{tc} {ans}')
