@@ -11,3 +11,6 @@ ex) 324 / n = 0
 n = n * 10 + 3
 n = 30 + 2
 n = 320 + 4
+
+진수별로 변환하는 방법
+https://arthand.tistory.com/120
