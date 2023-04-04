@@ -1,0 +1,133 @@
+# MST: 최소신장트리
+
+'''
+6 11
+0 1 3
+0 2 5
+1 2 2
+1 3 6
+2 1 1
+2 3 4
+2 4 6
+3 4 2
+3 5 3
+4 0 3
+4 5 6
+'''
+
+# N: 노드 개수, M: 간선 개수
+N, M = map(int, input().split())
+
+# 인접 리스트
+graph = [[] for _ in range(N)]
+
+# 간선 정보 입력 받기
+for _ in range(M):
+    u, v, w = map(int, input().split())  # u: 시작 정점, v: 목표되는 정점, w: 가중치
+    graph[u].append((v, w))  # u -> v로 가는 간선의 가중치가 w
+    graph[v].append((u, w))  # 무방향 그래프(양쪽 다 갈 수 있어서)
+
+# # [1] 프림 알고리즘: 우선 순위 큐  -> 교재 보지 말고 구글링이나 교수님이 해주신 코드로 보기
+# # 반환값이 MST의 모든 가중치를 합한 값
+
+# import heapq
+# def prim(graph):
+#     # 선택한 정점에 대해서 visited 체크
+#     visited = [False for _ in range(len(graph))]  # [False] * len(graph)
+#     # 최소힙(최소값 구하는)
+#     pq = [(0, 0)]  # 시작 정점과 가중치 = 0
+#     total_weight = 0  # 모든 가중치를 합한 값을 넣을 변수
+#     # 선택되는 정점이 없을 때까지 (힙큐가 빌 때까지)
+#
+#     while pq:
+#         w, u = heapq.heappop(pq)  # 가중치, 해당되는 정점의 정보 순
+#         if visited[u]:
+#             continue
+#         visited[u] = True  # 해당 정점 방문처리
+#         total_weight += w  # 가중치 정보도 가산
+#
+#         # u 정점에 인접한 정점에 간선 정보를 pq 에 넣는 과정을 진행
+#         # u: 시작 정점, v: 도착 정점, w: 가중치
+#         # u -> v(w)
+#         for v, w in graph[u]:
+#             if visited[v] == False:
+#                 heapq.heappush(pq, (w, v))  # 순서 중요) 가중치 정보에 대한 정점의 값이 들어감
+#
+#     return total_weight
+#
+# print(prim(graph))
+#
+#
+# # [2] 크루스칼 알고리즘 (서로소 집합 - 유니온 파인드 셋 알고리즘을 기본적으로 사용한다)
+# # 반환값이 MST의 모든 가중치를 합한 값
+# def kruskal(graph):
+#     p = [i for i in range(len(graph))]  # 부모 배열
+#
+#     # 유니온 파인드 셋이 다 들어가있음
+#     def find(i):  # 해당되는 i를 받았을 때
+#         if p[i] == i:  # p값이 자기 자신이 될 때까지
+#             return i
+#         p[i] = find(p[i])
+#         return p[i]
+#
+#     # 간선의 정보를 가중치로 오름차순 정렬
+#     edges = []
+#     for u in range(len(graph)):
+#         for v, w in graph[u]:
+#             edges.append((u,v,w))
+#     edges.sort(key=lambda x:x[2])  # 가중치에 대한 정보로 오름차순 해주세요
+#
+#     # MST 간선 가중치의 합 정보
+#     total_weight = 0
+#
+#     # 간선을 총 몇개? -> n-1 개 뽑아야 함..
+#     for u, v, w in edges:
+#         # 정점 u와 정점 v에 대한 대표자를 확인
+#         x = find(u)
+#         y = find(v)
+#
+#         # 대표자가 같다면? 사이클 발생(무한 순회) -> 간선 pass
+#         if x != y:
+#             # 유니온 과정 진행
+#             p[y] = x
+#             # 해당되는 간선 정보의 합을 더한다
+#             total_weight += w
+#
+#     return total_weight
+#
+# print(kruskal(graph))
+
+
+# [3] 다익스트라 알고리즘
+# 최단 경로를 계산하는 알고리즘
+# 시작 정점 s에서 걸리는 거리값을 dist라는 배열에다가 저장
+
+import heapq
+
+# INF = 1000000000000  # 무한대값 만들기
+
+def dijkstra(graph, start):
+    # 시작 정점 s에서 걸리는 거리값
+    dist = [float('inf') for _ in range(len(graph))]  # [INF for _ in range(graph)]
+
+    pq = [(0, start)]  # 최소큐에 (가중치, 시작정점)
+    dist[start] = 0  # 가중치를 0으로 초기화
+
+    while pq:  # pq의 값이 없을 때까지
+        w, u = heapq.heappop(pq)  # 값 중 가장 낮은 값, w: 가중치, u: 시작정점
+        # 큐에서 뽑은 값의 가중치가 현재 갱신되어 있는 거리값(dist)보다 크다면 더 진행하지 x
+        if dist[u] < w:
+            continue
+
+        # 정점 u에 대해서 인접한 간선 정보를 뽑아서 dist 값을 갱신
+        # + 새로 갱신한 가중치와 그 해당 정점을 pq에 삽입
+        for v, w in graph[u]:  # 새로운 정점 v
+            new_weight = dist[u] + w
+            if new_weight < dist[v]:
+                # 시작정점 -> v로 가는 최소 거리값을 갱신
+                dist[v] = new_weight
+                heapq.heappush(pq, (dist[v], v))
+    return dist
+
+# 시작정점 0
+print(dijkstra(graph, 0))
